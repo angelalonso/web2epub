@@ -17,5 +17,11 @@ fn load_file(file: &str) {
 
     let docs = YamlLoader::load_from_str(&contents).unwrap();
 
-    print!("{:?}", docs)
+    for array in docs {
+        for doc in array {
+            println!("{:?}", doc["title"].clone().into_string());
+            println!("{:?}", doc["url"].clone());
+            println!("###########");
+        }
+    }
 }
