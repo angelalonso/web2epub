@@ -1,6 +1,5 @@
 use std::fs::File;
 use std::io::prelude::*;
-use yaml_rust::yaml::{Hash, Yaml};
 use yaml_rust::YamlLoader;
 
 fn main() {
@@ -20,8 +19,12 @@ fn load_file(file: &str) {
     for array in docs {
         for doc in array {
             println!("{:?}", doc["title"].clone().into_string());
-            println!("{:?}", doc["url"].clone());
-            println!("###########");
+            let urls = doc["urls"].clone().into_string();
+            for u in urls.unwrap().split(" ").collect::<Vec<&str>>() {
+                // TODO: download documents into memory
+                println!("{:?}", u);
+
+            }
         }
     }
 }
