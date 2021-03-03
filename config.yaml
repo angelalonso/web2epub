@@ -1,3 +1,9 @@
 - title: K8s Architecture
-  urls:
-    https://kubernetes.io/docs/concepts/architecture/nodes/
+  url: https://kubernetes.io/docs/concepts/architecture/nodes/
+  divs_in: 
+    - class: "td-content"
+    - id: "content"
+  divs_out: 
+    - class: "pre-footer"
+ 
+    #https://fonseca.de.com

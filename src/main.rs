@@ -3,10 +3,18 @@ use std::io;
 use std::io::prelude::*;
 use yaml_rust::YamlLoader;
 use reqwest;
+use select::document::Document;
+use select::predicate::{Attr, Class, Name, Predicate};
 
-fn main() {
-    let file = "config.yaml";
-    load_file(file);
+fn get_content(url: &str) {
+    let resp = reqwest::get(url).unwrap();
+    assert!(resp.status().is_success());
+
+    let document = Document::from_read(resp).unwrap();
+    for node in document.find(Class("td-content")) {
+    //for node in document.find(Attr("id", "content")) {
+        println!("{:#x?}", node.inner_html());
+    }
 }
 
 fn load_file(file: &str) {
@@ -23,20 +31,15 @@ fn load_file(file: &str) {
             println!("{:?}", doc["title"].clone().into_string());
             let title = doc["title"].clone().into_string().unwrap();
             println!("{:?}", title);
-            let urls = doc["urls"].clone().into_string();
-            for u in urls.unwrap().split(" ").collect::<Vec<&str>>() {
-                // TODO: download documents into memory
-                let mut resp = reqwest::get(u).expect("request failed");
-                let filename: String = format!("./ebooks/{}.html", title.replace(" ", "_"));
-                let mut out = File::create(filename).expect("failed to create file");
-                let result = resp.text().unwrap();
-                let start = result.find("iv");
-                let v: Vec<_> = result.match_indices("div").collect();
-                println!("{:?}", start);
-                println!("{:?}", v);
-                io::copy(&mut resp, &mut out).expect("failed to copy content");
-
+            let url = doc["url"].clone().into_string();
+            for u in url.unwrap().split(" ").collect::<Vec<&str>>() {
+                get_content(u);
             }
         }
     }
+}
+
+fn main() {
+    let file = "config.yaml";
+    load_file(file);
 }
