@@ -1,9 +1,3 @@
 - title: K8s Architecture
   urls:
     https://kubernetes.io/docs/concepts/architecture/nodes/
-    https://kubernetes.io/docs/concepts/architecture/control-plane-node-communication/
-    https://kubernetes.io/docs/concepts/architecture/controller/
-    https://kubernetes.io/docs/concepts/architecture/cloud-controller/
-- title: AWS VPC
-  urls:
-    https://docs.aws.amazon.com/vpc/latest/userguide/what-is-amazon-vpc.html

@@ -1,6 +1,11 @@
 use std::fs::File;
+use std::io;
 use std::io::prelude::*;
 use yaml_rust::YamlLoader;
+use reqwest;
+use soup;
+use kuchiki;
+use kuchiki::traits::*;
 
 fn main() {
     let file = "config.yaml";
@@ -19,10 +24,23 @@ fn load_file(file: &str) {
     for array in docs {
         for doc in array {
             println!("{:?}", doc["title"].clone().into_string());
+            let title = doc["title"].clone().into_string().unwrap();
+            println!("{:?}", title);
             let urls = doc["urls"].clone().into_string();
             for u in urls.unwrap().split(" ").collect::<Vec<&str>>() {
                 // TODO: download documents into memory
-                println!("{:?}", u);
+                let mut resp = reqwest::get(u).expect("request failed");
+                let filename: String = format!("./ebooks/{}.html", title.replace(" ", "_"));
+                let mut out = File::create(filename).expect("failed to create file");
+                let result = resp.text().unwrap();
+                let document = kuchiki::parse_html().one(result);
+                let selector = "div";
+                let anchor = document.select_first(selector).unwrap();
+                // Iterating solution - Using `text_nodes()` iterators
+                anchor.as_node().children().text_nodes().for_each(|e| {
+                    println!("{:?}", e);
+                });
+                io::copy(&mut resp, &mut out).expect("failed to copy content");
 
             }
         }
