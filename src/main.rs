@@ -3,9 +3,6 @@ use std::io;
 use std::io::prelude::*;
 use yaml_rust::YamlLoader;
 use reqwest;
-use soup;
-use kuchiki;
-use kuchiki::traits::*;
 
 fn main() {
     let file = "config.yaml";
@@ -33,13 +30,10 @@ fn load_file(file: &str) {
                 let filename: String = format!("./ebooks/{}.html", title.replace(" ", "_"));
                 let mut out = File::create(filename).expect("failed to create file");
                 let result = resp.text().unwrap();
-                let document = kuchiki::parse_html().one(result);
-                let selector = "div";
-                let anchor = document.select_first(selector).unwrap();
-                // Iterating solution - Using `text_nodes()` iterators
-                anchor.as_node().children().text_nodes().for_each(|e| {
-                    println!("{:?}", e);
-                });
+                let start = result.find("iv");
+                let v: Vec<_> = result.match_indices("div").collect();
+                println!("{:?}", start);
+                println!("{:?}", v);
                 io::copy(&mut resp, &mut out).expect("failed to copy content");
 
             }
