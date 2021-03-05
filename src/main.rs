@@ -6,47 +6,55 @@ use reqwest;
 use select::document::Document;
 use select::predicate::{Attr, Class, Name, Predicate};
 
-fn get_content(url: &str, divs_in: Vec<yaml_rust::Yaml>, divs_out: Vec<yaml_rust::Yaml>) {
+fn get_content(url: &str, divs_in: Vec<yaml_rust::Yaml>) -> String {
+    let mut result = "".to_string();
     let resp = reqwest::get(url).unwrap();
     assert!(resp.status().is_success());
 
     let document = Document::from_read(resp).unwrap();
     for node in document.find(Class("td-content")) {
     //for node in document.find(Attr("id", "content")) {
-        println!("{:#x?}", node.inner_html());
+        result.push_str(&format!("{:#x?}", node.inner_html()));
     }
     for d_i in divs_in {
-        println!("------------------------------------------");
         for (k, v) in d_i.as_hash().unwrap().iter() {
             let key = k.as_str().unwrap();
             let val = v.as_str().unwrap();
             if key == "class" {
                 for node in document.find(Class(val)) {
-                    println!("{:#x?}", node.inner_html());
+                    result.push_str(&format!("{:#x?}", node.inner_html()));
                 }
             } else if key == "id" {
                 for node in document.find(Attr(key, val)) {
                     println!("{:#x?}", node.inner_html());
+                    result.push_str(&format!("{:#x?}", node.inner_html()));
                 }
             };
         }
     }
-    println!("..........................................");
+    return result
+}
+
+fn remove_content(content: String, divs_out: Vec<yaml_rust::Yaml>) -> String{
+    let mut result = "".to_string();
+    let document = Document::from_read(content.as_bytes()).unwrap();
     for d_o in divs_out {
         for (k, v) in d_o.as_hash().unwrap().iter() {
             let key = k.as_str().unwrap();
             let val = v.as_str().unwrap();
             if key == "class" {
                 for node in document.find(Class(val)) {
-                    println!("{:#x?}", node.inner_html());
+                    result.push_str(&format!("{:#x?}", node.inner_html()));
                 }
             } else if key == "id" {
                 for node in document.find(Attr(key, val)) {
                     println!("{:#x?}", node.inner_html());
+                    result.push_str(&format!("{:#x?}", node.inner_html()));
                 }
             };
         }
     }
+    return result
 }
 
 fn load_file(file: &str) {
@@ -68,7 +76,10 @@ fn load_file(file: &str) {
             let divs_in = doc["divs_in"].clone().into_vec().unwrap();
             let divs_out = doc["divs_out"].clone().into_vec().unwrap();
             for u in url.unwrap().split(" ").collect::<Vec<&str>>() {
-                get_content(u, divs_in.clone(), divs_out.clone());
+                let content_got = get_content(u, divs_in.clone());
+                println!("{:?}", content_got);
+                let content_clean = remove_content(content_got, divs_out.clone());
+                //println!("{:?}", content_clean);
             }
         }
     }
