@@ -3,7 +3,6 @@ use std::io;
 use std::io::prelude::*;
 use yaml_rust::YamlLoader;
 use reqwest;
-use soup;
 use kuchiki;
 use kuchiki::traits::*;
 
@@ -34,9 +33,10 @@ fn load_file(file: &str) {
                 let mut out = File::create(filename).expect("failed to create file");
                 let result = resp.text().unwrap();
                 let document = kuchiki::parse_html().one(result);
-                let selector = "div";
+                let selector = "div class=td-content";
                 let anchor = document.select_first(selector).unwrap();
                 // Iterating solution - Using `text_nodes()` iterators
+                println!("{:?}", anchor);
                 anchor.as_node().children().text_nodes().for_each(|e| {
                     println!("{:?}", e);
                 });
