@@ -4,6 +4,8 @@
     - class: "td-content"
     - id: "content"
   divs_out: 
+    - id: "what-s-next"
     - id: "pre-footer"
+    - class: "feedback--link"
  
     #https://fonseca.de.com

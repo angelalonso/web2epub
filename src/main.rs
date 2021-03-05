@@ -12,22 +12,17 @@ fn get_content(url: &str, divs_in: Vec<yaml_rust::Yaml>) -> String {
     assert!(resp.status().is_success());
 
     let document = Document::from_read(resp).unwrap();
-    for node in document.find(Class("td-content")) {
-    //for node in document.find(Attr("id", "content")) {
-        result.push_str(&format!("{:#x?}", node.inner_html()));
-    }
     for d_i in divs_in {
         for (k, v) in d_i.as_hash().unwrap().iter() {
             let key = k.as_str().unwrap();
             let val = v.as_str().unwrap();
             if key == "class" {
                 for node in document.find(Class(val)) {
-                    result.push_str(&format!("{:#x?}", node.inner_html()));
+                    result.push_str(&format!("{}", node.inner_html()));
                 }
             } else if key == "id" {
                 for node in document.find(Attr(key, val)) {
-                    println!("{:#x?}", node.inner_html());
-                    result.push_str(&format!("{:#x?}", node.inner_html()));
+                    result.push_str(&format!("{}", node.inner_html()));
                 }
             };
         }
@@ -36,7 +31,7 @@ fn get_content(url: &str, divs_in: Vec<yaml_rust::Yaml>) -> String {
 }
 
 fn remove_content(content: String, divs_out: Vec<yaml_rust::Yaml>) -> String{
-    let mut result = "".to_string();
+    let mut remover = "".to_string();
     let document = Document::from_read(content.as_bytes()).unwrap();
     for d_o in divs_out {
         for (k, v) in d_o.as_hash().unwrap().iter() {
@@ -44,16 +39,16 @@ fn remove_content(content: String, divs_out: Vec<yaml_rust::Yaml>) -> String{
             let val = v.as_str().unwrap();
             if key == "class" {
                 for node in document.find(Class(val)) {
-                    result.push_str(&format!("{:#x?}", node.inner_html()));
+                    remover.push_str(&format!("{}", node.inner_html()));
                 }
             } else if key == "id" {
                 for node in document.find(Attr(key, val)) {
-                    println!("{:#x?}", node.inner_html());
-                    result.push_str(&format!("{:#x?}", node.inner_html()));
+                    remover.push_str(&format!("{}", node.inner_html()));
                 }
             };
         }
     }
+    let result = content.replace(&remover, "");
     return result
 }
 
@@ -68,18 +63,17 @@ fn load_file(file: &str) {
 
     for array in docs {
         for doc in array {
-            println!("{:?}", doc["title"].clone().into_string());
             let title = doc["title"].clone().into_string().unwrap();
-            println!("{:?}", title);
 
             let url = doc["url"].clone().into_string();
             let divs_in = doc["divs_in"].clone().into_vec().unwrap();
             let divs_out = doc["divs_out"].clone().into_vec().unwrap();
             for u in url.unwrap().split(" ").collect::<Vec<&str>>() {
                 let content_got = get_content(u, divs_in.clone());
-                println!("{:?}", content_got);
+                println!("{}", content_got);
+                println!("-----------------------------------");
                 let content_clean = remove_content(content_got, divs_out.clone());
-                //println!("{:?}", content_clean);
+                println!("{}", content_clean);
             }
         }
     }
