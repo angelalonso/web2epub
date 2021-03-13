@@ -1,3 +1,4 @@
+use std::fs;
 use std::fs::File;
 use std::io;
 use std::io::prelude::*;
@@ -5,6 +6,10 @@ use yaml_rust::YamlLoader;
 use reqwest;
 use select::document::Document;
 use select::predicate::{Attr, Class, Name, Predicate};
+use std::fs::OpenOptions;
+use std::io::prelude::*;
+
+static RESULT_PATH: &str = "ebooks";
 
 fn get_content(url: &str, divs_in: Vec<yaml_rust::Yaml>) -> String {
     let mut result = "".to_string();
@@ -62,7 +67,14 @@ fn load_file(file: &str) {
 
     for array in docs {
         for doc in array {
-            let _main_title = doc["title"].clone().into_string().unwrap();
+            let main_title = doc["title"].clone().into_string().unwrap();
+            let outputfolder = format!("./{}/{}", RESULT_PATH, main_title.replace(" ", "_"));
+            fs::create_dir_all(outputfolder.clone());
+            match fs::remove_file(format!("{}/index.html", outputfolder)){
+                Ok(_) => println!("INFO: we are overwriting {}/index.html", outputfolder),
+                Err(_) => (),
+            };
+            let mut outputfile = OpenOptions::new().append(true).create(true).open(format!("{}/index.html", outputfolder)).unwrap();
             for item in doc["items"].clone() {
                 let item_title = item["title"].clone().into_string().unwrap_or("".to_string());
                 let url = item["url"].clone().into_string();
@@ -71,9 +83,12 @@ fn load_file(file: &str) {
                 //for u in url.unwrap().split(" ").collect::<Vec<&str>>() {
                 let content_got = get_content(&url.unwrap(), divs_in.clone());
                 let content_clean = remove_content(content_got, divs_out.clone());
-                println!("<h1>{}</h1>", item_title);
-                println!("{}", content_clean);
-                println!("<br><br><br>");
+                write!(&mut outputfile, "{}", format!("<h1>{}</h1>", item_title));
+                write!(&mut outputfile, "{}", format!("{}", content_clean));
+                write!(&mut outputfile, "{}", format!("<br><br><br>"));
+                //println!("<h1>{}</h1>", item_title);
+                //println!("{}", content_clean);
+                //println!("<br><br><br>");
                 //}
             }
         }
