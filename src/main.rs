@@ -62,17 +62,19 @@ fn load_file(file: &str) {
 
     for array in docs {
         for doc in array {
-            let title = doc["title"].clone().into_string().unwrap();
-
-            let url = doc["url"].clone().into_string();
-            let divs_in = doc["divs_in"].clone().into_vec().unwrap();
-            let divs_out = doc["divs_out"].clone().into_vec().unwrap();
-            for u in url.unwrap().split(" ").collect::<Vec<&str>>() {
-                let content_got = get_content(u, divs_in.clone());
-                //println!("{}", content_got);
-                //println!("-----------------------------------");
+            let _main_title = doc["title"].clone().into_string().unwrap();
+            for item in doc["items"].clone() {
+                let item_title = item["title"].clone().into_string().unwrap_or("".to_string());
+                let url = item["url"].clone().into_string();
+                let divs_in = item["divs_in"].clone().into_vec().unwrap();
+                let divs_out = item["divs_out"].clone().into_vec().unwrap();
+                //for u in url.unwrap().split(" ").collect::<Vec<&str>>() {
+                let content_got = get_content(&url.unwrap(), divs_in.clone());
                 let content_clean = remove_content(content_got, divs_out.clone());
+                println!("<h1>{}</h1>", item_title);
                 println!("{}", content_clean);
+                println!("<br><br><br>");
+                //}
             }
         }
     }

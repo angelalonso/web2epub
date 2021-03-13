@@ -1,9 +1,20 @@
 - title: K8s Architecture
-  url: https://kubernetes.io/docs/concepts/architecture/nodes/
-  divs_in: 
+  items:
+  - url: https://kubernetes.io/docs/concepts/architecture/nodes/
+    title: K8s nodes
+    divs_in: 
     - class: "td-content"
     - id: "content"
-  divs_out: 
+    divs_out: 
+    - id: "what-s-next"
+    - id: "pre-footer"
+    - class: "feedback--link"
+  - url: https://kubernetes.io/docs/concepts/architecture/control-plane-node-communication/
+    title: K8s Communication
+    divs_in: 
+    - class: "td-content"
+    - id: "content"
+    divs_out: 
     - id: "what-s-next"
     - id: "pre-footer"
     - class: "feedback--link"
