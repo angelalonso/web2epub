@@ -9,6 +9,9 @@ Use at your own risk!
 
 I'd totally love to hear from you if my script bricked your ebook reader, though!
 
+ALSO: the binary has been generated on a 64bit linux machine. If your machine cannot run it, have rust installed and try:
+```cargo build --release && cp target/release/web2epub .```
+
 # TL;DR
 - Open the site(s) you want in your ebook with an element inspector(e.g.: element picker on Firefox)
   - Play around a bit to find out the divs you want to capture, and whethere they are defined by class or id (so far nothing else supported)
@@ -24,7 +27,7 @@ I'd totally love to hear from you if my script bricked your ebook reader, though
   - '    - id:' ->      ... and if the div is defined by an id, do it like this instead.
   - '    divs_out: -> List of divs INSIDE the divs you added that you may want to remove. Similar mechanic as divs_in.
 - Run:
-```cargo run```
+```./web2epub```
 - Your epub docs will have been already generated
 
 ## Features
