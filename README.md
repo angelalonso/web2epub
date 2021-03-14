@@ -1,5 +1,7 @@
 # web2epub
-Script to put together an ebook from a list of websites.
+Script to put together one (or more) ebook(s) from a list of websites.
+
+It allows you to clean up the HTML by selecting which DIVs to include, and which ones to remove.
 
 # TL;DR
 - Open the site(s) you want in your ebook with an element inspector(e.g.: element picker on Firefox)
