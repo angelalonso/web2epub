@@ -3,11 +3,18 @@ Script to put together one (or more) ebook(s) from a list of websites.
 
 It allows you to clean up the HTML by selecting which DIVs to include, and which ones to remove.
 
+# ATTENTION!
+This script has not been properly tested!
+Use at your own risk!
+
+I'd totally love to hear from you if my script bricked your ebook reader, though!
+
 # TL;DR
 - Open the site(s) you want in your ebook with an element inspector(e.g.: element picker on Firefox)
   - Play around a bit to find out the divs you want to capture, and whethere they are defined by class or id (so far nothing else supported)
-- Copy config.yaml.template to config.yaml and modify it
-- Each book you want to create needs to have:
+  - If you feel lost see [tutorials like this](https://www.youtube.com/watch?v=F7fUtZh6APw)
+- Copy config.yaml.template to config.yaml.
+- Modify the config.yaml. For each book you want to create you'll need to have:
   - '- title:' -> This serves as the title, name of the ebook file...
   - '  items:'
   - '  - url:' -> the URL of the site you want to download
