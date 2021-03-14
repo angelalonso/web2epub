@@ -8,16 +8,42 @@ use reqwest;
 use select::document::Document;
 use select::predicate::{Attr, Class};
 use std::fs::File;
-use std::fs;
 use std::io::BufWriter;
-use std::io::Write;
 use std::io::prelude::*;
-use std::io;
-use stdio_override::StdoutOverride;
 use yaml_rust::YamlLoader;
 
 
-static RESULT_PATH: &str = "ebooks";
+fn create_from_cfg_file(filename: &str) {
+    let mut file = File::open(filename).expect("Unable to open file");
+    let mut filecontents = String::new();
+
+    file.read_to_string(&mut filecontents)
+        .expect("Unable to read file");
+
+    let docs = YamlLoader::load_from_str(&filecontents).unwrap();
+
+    for array in docs {
+        for doc in array {
+            let mut content = "".to_string();
+            let main_title = doc["title"].clone().into_string().unwrap();
+            for item in doc["items"].clone() {
+                let item_title = item["title"].clone().into_string().unwrap_or("".to_string());
+                let url = item["url"].clone().into_string();
+                let divs_in = item["divs_in"].clone().into_vec().unwrap();
+                let divs_out = item["divs_out"].clone().into_vec().unwrap();
+                let content_got = get_content(&url.unwrap(), divs_in.clone());
+                let content_clean = remove_content(content_got, divs_out.clone());
+                content.push_str(&format!("<h1>{}</h1>", item_title));
+                content.push_str(&format!("{}", content_clean));
+                content.push_str(&format!("<br><br><br>"));
+            }
+            match create_epub(main_title.clone(), content.clone()) {
+                Ok(_) => println!("Book {}.epub created successfully!", main_title.clone().replace(" ", "_")),
+                Err(_) => println!("ERROR creating Book {}.epub!", main_title.clone().replace(" ", "_")),
+            };
+        }
+    }
+}
 
 fn get_content(url: &str, divs_in: Vec<yaml_rust::Yaml>) -> String {
     let mut result = "".to_string();
@@ -44,7 +70,6 @@ fn get_content(url: &str, divs_in: Vec<yaml_rust::Yaml>) -> String {
 }
 
 fn remove_content(mut content: String, divs_out: Vec<yaml_rust::Yaml>) -> String{
-    let mut remover = "".to_string();
     let document = Document::from_read(content.as_bytes()).unwrap();
     for d_o in divs_out {
         for (k, v) in d_o.as_hash().unwrap().iter() {
@@ -65,64 +90,24 @@ fn remove_content(mut content: String, divs_out: Vec<yaml_rust::Yaml>) -> String
 }
 
 fn create_epub(title: String, content: String) -> Result<()> {
-    // Some dummy content to fill our books
-    let dummy_css = "body { background-color: white }";
 
-    let file_name = "./foo.epub";
-    let guard = StdoutOverride::override_file(file_name).unwrap();
+    let file_name = format!("{}.epub",title.replace(" ", "_"));
+    let f = File::create(file_name).expect("Unable to create file");
+    let mut f = BufWriter::new(f);
+
     EpubBuilder::new(ZipLibrary::new()?)?
         .metadata("author", "web2epub")?
         .metadata("title", title.clone())?
-        .stylesheet(dummy_css.as_bytes())?
         .add_content(EpubContent::new(format!("{}.xhtml", title), content.as_bytes())
                      .title(title)
                      .reftype(ReferenceType::Text))?
-    // Generate a toc inside of the document, that will be part of the linear structure.
+    // Use this if we want to generate a toc inside of the document.
     //    .inline_toc()
-        .generate(&mut io::stdout())?;
-    drop(guard);
+        .generate(&mut f)?;
     Ok(())
 }
 
-fn load_file(filename: &str) {
-    let mut file = File::open(filename).expect("Unable to open file");
-    let mut filecontents = String::new();
-
-    file.read_to_string(&mut filecontents)
-        .expect("Unable to read file");
-
-    let docs = YamlLoader::load_from_str(&filecontents).unwrap();
-
-    for array in docs {
-        for doc in array {
-            let mut content = "".to_string();
-            let main_title = doc["title"].clone().into_string().unwrap();
-            let outputfolder = format!("./{}/{}", RESULT_PATH, main_title.replace(" ", "_"));
-            fs::create_dir_all(outputfolder.clone());
-            match fs::remove_file(format!("{}/index.html", outputfolder)){
-                Ok(_) => println!("INFO: we are overwriting {}/index.html", outputfolder),
-                Err(_) => (),
-            };
-            //let mut outputfile = OpenOptions::new().append(true).create(true).open(format!("{}/index.html", outputfolder)).unwrap();
-            for item in doc["items"].clone() {
-                let item_title = item["title"].clone().into_string().unwrap_or("".to_string());
-                let url = item["url"].clone().into_string();
-                let divs_in = item["divs_in"].clone().into_vec().unwrap();
-                let divs_out = item["divs_out"].clone().into_vec().unwrap();
-                //for u in url.unwrap().split(" ").collect::<Vec<&str>>() {
-                let content_got = get_content(&url.unwrap(), divs_in.clone());
-                let content_clean = remove_content(content_got, divs_out.clone());
-                content.push_str(&format!("<h1>{}</h1>", item_title));
-                content.push_str(&format!("{}", content_clean));
-                content.push_str(&format!("<br><br><br>"));
-                //create_epub(main_title.clone(), content.clone());
-            }
-            create_epub(main_title.clone(), content.clone());
-        }
-    }
-}
-
 fn main() {
-    let file = "config.yaml";
-    load_file(file);
+    let cfg_file = "config.yaml";
+    create_from_cfg_file(cfg_file);
 }

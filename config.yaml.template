@@ -1,3 +1,4 @@
+# The following is an example of two sites I want to put on one epub
 - title: K8s Architecture
   items:
   - url: https://kubernetes.io/docs/concepts/architecture/nodes/
@@ -18,5 +19,3 @@
     - id: "what-s-next"
     - id: "pre-footer"
     - class: "feedback--link"
- 
-    #https://fonseca.de.com

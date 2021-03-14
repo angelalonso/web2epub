@@ -1,12 +1,31 @@
 # web2epub
-Script to automate reading list for Ebook readers
+Script to put together an ebook from a list of websites.
 
-## Base Wishlist
+# TL;DR
+- Open the site(s) you want in your ebook with an element inspector(e.g.: element picker on Firefox)
+  - Play around a bit to find out the divs you want to capture, and whethere they are defined by class or id (so far nothing else supported)
+- Copy config.yaml.template to config.yaml and modify it
+- Each book you want to create needs to have:
+  - '- title:' -> This serves as the title, name of the ebook file...
+  - '  items:'
+  - '  - url:' -> the URL of the site you want to download
+  - '    title:' -> A title that will be included in the ebook for this site
+  - '    divs_in:' -> List of divs from the site that you want to add 
+  - '    - class:' -> IF the div you want is deifned by a class, define it like this...
+  - '    - id:' ->      ... and if the div is defined by an id, do it like this instead.
+  - '    divs_out: -> List of divs INSIDE the divs you added that you may want to remove. Similar mechanic as divs_in.
+- Run:
+```cargo run```
+- Your epub docs will have been already generated
+
+## Features
+- Keep a list of URLs to get content from on YAML format
+  - They are grouped by epub document to enable several docs
+- Define what contents to "extract" (e.g.: get everything under div tagged as "main")
+
+## NOT YET WORKING
 All of the following is yet to be implemented:
 
-- Maintain a list of URLs to get content from
-  - Group them by document to enable several docs
 - Check if the docs have changed (maintain a local copy and compare)
   -  Autoupdate if the docs changed
-- Define what contents to "extract" (e.g.: get everything under div tagged as "main")
 - Download and adapt src for images
