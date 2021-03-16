@@ -33,12 +33,15 @@ fn create_from_cfg_file(filename: &str) {
                 let divs_out = item["divs_out"].clone().into_vec().unwrap();
                 let content_got = get_content(&url.unwrap(), divs_in.clone());
                 let content_clean = remove_content(content_got, divs_out.clone());
+                content.push_str("<?xml version='1.0' encoding='utf-8'?><html xmlns=\"http://www.w3.org/1999/xhtml\"><head/><body>");
                 content.push_str(&format!("<h1>{}</h1>", item_title));
                 content.push_str(&format!("{}", content_clean));
                 content.push_str(&format!("<br><br><br>"));
             }
             match create_epub(main_title.clone(), content.clone()) {
-                Ok(_) => println!("Book {}.epub created successfully!", main_title.clone().replace(" ", "_")),
+                Ok(_) => println!("Book {}.epub created successfully!\n\nUse ebook-edit {}.epub > Tools > Check ebook if your ebook reader cant handle it", 
+                                  main_title.clone().replace(" ", "_"),
+                                  main_title.clone().replace(" ", "_")),
                 Err(_) => println!("ERROR creating Book {}.epub!", main_title.clone().replace(" ", "_")),
             };
         }
