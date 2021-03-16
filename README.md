@@ -1,7 +1,13 @@
 # web2epub
-Script to put together one (or more) ebook(s) from a list of websites.
+Script to put together one (or more) ebook(s) directly from a list of websites.
 
-It allows you to clean up the HTML by selecting which DIVs to include, and which ones to remove.
+It allows you to clean up the HTML a bit by selecting which DIVs to include, and which ones to remove.
+
+It works best together with Calibre.
+
+## Motivation
+- Calibre itself cannot download from a URL.
+- Other solutions like "Save as ebook" addon for firefox does not work from the command line.
 
 # ATTENTION!
 This script has not been properly tested!
@@ -13,6 +19,7 @@ ALSO: the binary has been generated on a 64bit linux machine. If your machine ca
 ```cargo build --release && cp target/release/web2epub .```
 
 # TL;DR
+- Install Calibre
 - Open the site(s) you want in your ebook with an element inspector(e.g.: element picker on Firefox)
   - Play around a bit to find out the divs you want to capture, and whethere they are defined by class or id (so far nothing else supported)
   - If you feel lost see [tutorials like this](https://www.youtube.com/watch?v=F7fUtZh6APw)
