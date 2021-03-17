@@ -7,6 +7,8 @@ It works best together with Calibre.
 
 ## Motivation
 - Calibre itself cannot download from a URL.
+- Calibre builds a huge epub from an html unless you tune and tweak for some time. In my example it was a difference of 6 to 260.
+- We'll still use Calibre's auto check and correct.
 - Other solutions like "Save as ebook" addon for firefox does not work from the command line.
 
 # ATTENTION!
@@ -35,7 +37,8 @@ ALSO: the binary has been generated on a 64bit linux machine. If your machine ca
   - '    divs_out: -> List of divs INSIDE the divs you added that you may want to remove. Similar mechanic as divs_in.
 - Run:
 ```./web2epub```
-- Your epub docs will have been already generated
+- Your epub docs will have been already generated and you will be presented with calibre. Press <F7> and "Try to correct all fixable errors automatically" until no more show up. Exit. Save
+- Copy over the file on ebooks/ to your ebook reader
 
 ## Features
 - Keep a list of URLs to get content from on YAML format

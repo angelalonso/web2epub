@@ -7,10 +7,20 @@ use epub_builder::ZipLibrary;
 use reqwest;
 use select::document::Document;
 use select::predicate::{Attr, Class};
+use std::fs;
 use std::fs::File;
 use std::io::BufWriter;
 use std::io::prelude::*;
 use yaml_rust::YamlLoader;
+use std::process::Command;
+
+
+fn do_calibre_autocorrect(title: &str) {
+    Command::new("ebook-edit")
+        .arg(format!("ebooks/{}.epub", title.replace(" ", "_")))
+        .spawn()
+        .expect("ebook-edit command failed to start");
+}
 
 
 fn create_from_cfg_file(filename: &str) {
@@ -44,6 +54,7 @@ fn create_from_cfg_file(filename: &str) {
                                   main_title.clone().replace(" ", "_")),
                 Err(_) => println!("ERROR creating Book {}.epub!", main_title.clone().replace(" ", "_")),
             };
+            do_calibre_autocorrect(&main_title.clone());
         }
     }
 }
@@ -94,7 +105,11 @@ fn remove_content(mut content: String, divs_out: Vec<yaml_rust::Yaml>) -> String
 
 fn create_epub(title: String, content: String) -> Result<()> {
 
-    let file_name = format!("{}.epub",title.replace(" ", "_"));
+    let file_name = format!("ebooks/{}.epub",title.replace(" ", "_"));
+    match fs::remove_file(file_name.clone()) {
+        Ok(_) => (),
+        Err(_) => (),
+    };
     let f = File::create(file_name).expect("Unable to create file");
     let mut f = BufWriter::new(f);
 
