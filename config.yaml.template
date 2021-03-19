@@ -1,8 +1,30 @@
 # The following is an example of two sites I want to put on one epub
+- title: Components
+  items:
+  - url: https://kubernetes.io/docs/concepts/overview/components/
+    title: Components
+    divs_in: 
+    - class: "td-content"
+    - id: "content"
+    divs_out: 
+    - id: "what-s-next"
+    - id: "pre-footer"
+    - class: "feedback--link"
+- title: API
+  items:
+  - url: https://kubernetes.io/docs/concepts/overview/kubernetes-api/
+    title: API
+    divs_in: 
+    - class: "td-content"
+    - id: "content"
+    divs_out: 
+    - id: "what-s-next"
+    - id: "pre-footer"
+    - class: "feedback--link"
 - title: K8s Architecture
   items:
   - url: https://kubernetes.io/docs/concepts/architecture/nodes/
-    title: K8s nodes
+    title: Nodes
     divs_in: 
     - class: "td-content"
     - id: "content"
@@ -11,7 +33,35 @@
     - id: "pre-footer"
     - class: "feedback--link"
   - url: https://kubernetes.io/docs/concepts/architecture/control-plane-node-communication/
-    title: K8s Communication
+    title: Control plane to node communications
+    divs_in: 
+    - class: "td-content"
+    - id: "content"
+    divs_out: 
+    - id: "what-s-next"
+    - id: "pre-footer"
+    - class: "feedback--link"
+  - url: https://kubernetes.io/docs/concepts/architecture/controller/
+    title: Controllers
+    divs_in: 
+    - class: "td-content"
+    - id: "content"
+    divs_out: 
+    - id: "what-s-next"
+    - id: "pre-footer"
+    - class: "feedback--link"
+  - url: https://kubernetes.io/docs/concepts/architecture/cloud-controller/
+    title: Cloud controller manager
+    divs_in: 
+    - class: "td-content"
+    - id: "content"
+    divs_out: 
+    - id: "what-s-next"
+    - id: "pre-footer"
+    - class: "feedback--link"
+- title: Labels annotations and taints
+  - url: https://kubernetes.io/docs/reference/labels-annotations-taints/
+    title: Well Known labels annotations and taints
     divs_in: 
     - class: "td-content"
     - id: "content"
