@@ -30,7 +30,13 @@ fn create_from_cfg_file(filename: &str) {
     file.read_to_string(&mut filecontents)
         .expect("Unable to read file");
 
-    let docs = YamlLoader::load_from_str(&filecontents).unwrap();
+    let docs = match YamlLoader::load_from_str(&filecontents) {
+        Ok(d) => d,
+        Err(e) => {
+            println!("ERROR parsing yaml: {}", e);
+            panic!();
+        },
+    };
 
     for array in docs {
         for doc in array {
@@ -39,8 +45,16 @@ fn create_from_cfg_file(filename: &str) {
             for item in doc["items"].clone() {
                 let item_title = item["title"].clone().into_string().unwrap_or("".to_string());
                 let url = item["url"].clone().into_string();
-                let divs_in = item["divs_in"].clone().into_vec().unwrap();
-                let divs_out = item["divs_out"].clone().into_vec().unwrap();
+                //let divs_in = item["divs_in"].clone().into_vec().unwrap();
+                let divs_in = match item["divs_in"].clone().into_vec() {
+                    Some(d_i) => d_i,
+                    _ => [].to_vec(),
+                };
+                //let divs_out = item["divs_out"].clone().into_vec().unwrap();
+                let divs_out = match item["divs_out"].clone().into_vec() {
+                    Some(d_o) => d_o,
+                    _ => [].to_vec(),
+                };
                 let content_got = get_content(&url.unwrap(), divs_in.clone());
                 let content_clean = remove_content(content_got, divs_out.clone());
                 content.push_str("<?xml version='1.0' encoding='utf-8'?><html xmlns=\"http://www.w3.org/1999/xhtml\"><head/><body>");
@@ -62,7 +76,10 @@ fn create_from_cfg_file(filename: &str) {
 fn get_content(url: &str, divs_in: Vec<yaml_rust::Yaml>) -> String {
     let mut result = "".to_string();
     let resp = reqwest::get(url).unwrap();
-    assert!(resp.status().is_success());
+    if !resp.status().is_success() {
+        println!("ERROR downloading \"{}\"", url);
+        panic!();
+    };
 
     let document = Document::from_read(resp).unwrap();
     for d_i in divs_in {

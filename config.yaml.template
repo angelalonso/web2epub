@@ -1,5 +1,98 @@
-# The following is an example of two sites I want to put on one epub
-- title: Components
+# The following are examples of some sites I want to put on several epub files:
+- title: AWS VPC
+  items:
+  - url: https://docs.aws.amazon.com/vpc/latest/userguide/what-is-amazon-vpc.html
+    title: AWS VPC
+    divs_in: # divs_in MUST be declared and CANNOT be empty (for now)
+    - id: "main-content"
+    divs_out: # divs_out, MUST be declared but CAN be left empty
+  - url: https://docs.aws.amazon.com/vpc/latest/userguide/how-it-works.html
+    title: How it works
+    divs_in: 
+    - id: "main-content"
+    divs_out: 
+  - url: https://docs.aws.amazon.com/vpc/latest/peering/what-is-vpc-peering.html
+    title: VPC Peering
+    divs_in: 
+    - id: "main-content"
+    divs_out: 
+  - url: https://docs.aws.amazon.com/vpc/latest/peering/vpc-peering-basics.html
+    title: VPC Peering Basics
+    divs_in: 
+    - id: "main-content"
+    divs_out: 
+  - url: https://docs.aws.amazon.com/vpc/latest/peering/modify-peering-connections.html
+    title: Modifying a VPC Peering
+    divs_in: 
+    - id: "main-content"
+    divs_out: 
+- title: AWS RDS
+  items:
+  - url: https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/Welcome.html
+    title: AWS RDS
+    divs_in: 
+    - id: "main-content"
+    divs_out: 
+  - url: https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/CHAP_BestPractices.html
+    title: Best Practices
+    divs_in: 
+    - id: "main-content"
+    divs_out: 
+  - url: https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/Appendix.MySQL.CommonDBATasks.html
+    title: Common DBA Tasks
+    divs_in: 
+    - id: "main-content"
+    divs_out: 
+  - url: https://docs.aws.amazon.com/AmazonRDS/latest/AuroraUserGuide/AuroraMySQL.Auditing.html
+    title: Advanced Aurora Auditing
+    divs_in: 
+    - id: "main-content"
+    divs_out: 
+- title: AWS EKS
+  items:
+  - url: https://docs.aws.amazon.com/eks/latest/userguide/what-is-eks.html
+    title: EKS
+    divs_in: 
+    - id: "main-content"
+    divs_out: 
+  - url: https://docs.aws.amazon.com/eks/latest/userguide/best-practices-security.html
+    title: Security best practices
+    divs_in: 
+    - id: "main-content"
+    divs_out: 
+  - url: https://docs.aws.amazon.com/eks/latest/userguide/iam-roles-for-service-accounts.html
+    title: IAM and ServiceAccounts
+    divs_in: 
+    - id: "main-content"
+    divs_out: 
+  - url: https://docs.aws.amazon.com/eks/latest/userguide/enable-iam-roles-for-service-accounts.html
+    title: IAM OIDC provider
+    divs_in: 
+    - id: "main-content"
+    divs_out: 
+  - url: https://docs.aws.amazon.com/eks/latest/userguide/create-service-account-iam-policy-and-role.html
+    title: IAM Create IAM role and policy
+    divs_in: 
+    - id: "main-content"
+    divs_out: 
+  - url: https://docs.aws.amazon.com/eks/latest/userguide/specify-service-account-role.html
+    title: IAM Associate an IAM role to a service account
+    divs_in: 
+    - id: "main-content"
+    divs_out: 
+- title: AWS App Mesh
+  items:
+  - url: https://docs.aws.amazon.com/app-mesh/latest/userguide/what-is-app-mesh.html
+    title: App Mesh
+    divs_in: 
+    - id: "main-content"
+    divs_out: 
+  - url: https://docs.aws.amazon.com/app-mesh/latest/userguide/best-practices.html
+    title: Best Practices
+    divs_in: 
+    - id: "main-content"
+    divs_out: 
+- title: K8s Components
   items:
   - url: https://kubernetes.io/docs/concepts/overview/components/
     title: Components
@@ -10,7 +103,7 @@
     - id: "what-s-next"
     - id: "pre-footer"
     - class: "feedback--link"
-- title: API
+- title: K8s API
   items:
   - url: https://kubernetes.io/docs/concepts/overview/kubernetes-api/
     title: API
@@ -59,7 +152,8 @@
     - id: "what-s-next"
     - id: "pre-footer"
     - class: "feedback--link"
-- title: Labels annotations and taints
+- title: K8s Labels annotations and taints
+  items:
   - url: https://kubernetes.io/docs/reference/labels-annotations-taints/
     title: Well Known labels annotations and taints
     divs_in: 
