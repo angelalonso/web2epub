@@ -3,7 +3,7 @@ Script to put together one (or more) ebook(s) directly from a list of websites.
 
 It allows you to clean up the HTML a bit by selecting which DIVs to include, and which ones to remove.
 
-It works best together with Calibre.
+It only works together with Calibre.
 
 ## Motivation
 - Calibre itself cannot download from a URL.
