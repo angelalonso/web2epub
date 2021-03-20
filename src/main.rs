@@ -127,7 +127,7 @@ fn remove_content(mut content: String, divs_out: Vec<yaml_rust::Yaml>) -> String
 
 fn is_update_needed(title: String, content: String) -> bool {
     match fs::create_dir_all(HTML_FOLDER) {
-        Ok(_) => println!("{} directory created.", HTML_FOLDER),
+        Ok(_) => (),
         Err(_) => (),
     };
     let mut result = true;
