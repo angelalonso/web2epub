@@ -13,8 +13,9 @@ Cargo.lock
 **/*.swp
 **/*.swo
 
-# Epubs
+# Epubs and temporary HTMLs
 **/*.epub
+tmphtml
 
 # Configs
 config.yaml

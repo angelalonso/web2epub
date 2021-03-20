@@ -14,14 +14,17 @@ use std::io::prelude::*;
 use yaml_rust::YamlLoader;
 use std::process::Command;
 
+static CALIBRE_EDIT_COMMAND: &str = "ebook-edit";
+static RESULT_FOLDER: &str = "ebooks";
+static HTML_FOLDER: &str = "tmphtml";
+
 
 fn do_calibre_autocorrect(title: &str) {
-    Command::new("ebook-edit")
-        .arg(format!("ebooks/{}.epub", title.replace(" ", "_")))
+    Command::new(CALIBRE_EDIT_COMMAND)
+        .arg(format!("{}/{}.epub", RESULT_FOLDER, title.replace(" ", "_")))
         .spawn()
         .expect("ebook-edit command failed to start");
 }
-
 
 fn create_from_cfg_file(filename: &str) {
     let mut file = File::open(filename).expect("Unable to open file");
@@ -62,13 +65,15 @@ fn create_from_cfg_file(filename: &str) {
                 content.push_str(&format!("{}", content_clean));
                 content.push_str(&format!("<br><br><br>"));
             }
-            match create_epub(main_title.clone(), content.clone()) {
-                Ok(_) => println!("Book {}.epub created successfully!\n\nUse ebook-edit {}.epub > Tools > Check ebook if your ebook reader cant handle it", 
-                                  main_title.clone().replace(" ", "_"),
-                                  main_title.clone().replace(" ", "_")),
-                Err(_) => println!("ERROR creating Book {}.epub!", main_title.clone().replace(" ", "_")),
+            if is_update_needed(main_title.clone(), content.clone()) {
+                match create_epub(main_title.clone(), content.clone()) {
+                    Ok(_) => println!("Book {}.epub created successfully!\n\nUse ebook-edit {}.epub > Tools > Check ebook if your ebook reader cant handle it", 
+                                      main_title.clone().replace(" ", "_"),
+                                      main_title.clone().replace(" ", "_")),
+                    Err(_) => println!("ERROR creating Book {}.epub!", main_title.clone().replace(" ", "_")),
+                };
+                do_calibre_autocorrect(&main_title.clone());
             };
-            do_calibre_autocorrect(&main_title.clone());
         }
     }
 }
@@ -120,9 +125,35 @@ fn remove_content(mut content: String, divs_out: Vec<yaml_rust::Yaml>) -> String
     return content
 }
 
-fn create_epub(title: String, content: String) -> Result<()> {
+fn is_update_needed(title: String, content: String) -> bool {
+    match fs::create_dir_all(HTML_FOLDER) {
+        Ok(_) => println!("{} directory created.", HTML_FOLDER),
+        Err(_) => (),
+    };
+    let mut result = true;
+    let file_name = format!("{}/{}.html", HTML_FOLDER, title.replace(" ", "_"));
+    if fs::metadata(file_name.clone()).is_ok() {
+        let mut prev_content = String::new();
+        let mut prev_f = File::open(file_name.clone()).expect("Unable to open file");
+        prev_f.read_to_string(&mut prev_content).expect("Unable to read string");
+        if content == prev_content {
+            println!("- '{}' is up to date", title);
+            result = false;
+        } else {
+            println!("- Updating '{}'...", title);
+            let mut f = File::create(file_name).expect("Unable to create file");
+            f.write_all(content.as_bytes()).expect("Unable to write data");
+        }
+    } else {
+        println!("- Adding '{}'...", title);
+        let mut f = File::create(file_name).expect("Unable to create file");
+        f.write_all(content.as_bytes()).expect("Unable to write data");
+    }
+    result
+}
 
-    let file_name = format!("ebooks/{}.epub",title.replace(" ", "_"));
+fn create_epub(title: String, content: String) -> Result<()> {
+    let file_name = format!("{}/{}.epub", RESULT_FOLDER, title.replace(" ", "_"));
     match fs::remove_file(file_name.clone()) {
         Ok(_) => (),
         Err(_) => (),
@@ -144,5 +175,7 @@ fn create_epub(title: String, content: String) -> Result<()> {
 
 fn main() {
     let cfg_file = "config.yaml";
+    // TODO:
+    //    - Add --force mode to force update even if nothing changed
     create_from_cfg_file(cfg_file);
 }

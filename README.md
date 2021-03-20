@@ -1,9 +1,11 @@
 # web2epub
 Script to put together one (or more) ebook(s) directly from a list of websites.
 
-It allows you to clean up the HTML a bit by selecting which DIVs to include, and which ones to remove.
+It allows you to clean up the HTML a bit by selecting which DIVs to include, and which ones to remove.  
+It also checks if anything changed since last time you created the EPUB file.   
+This comes handy when creating an EPUB off a, for instance, News site.
 
-It only works together with Calibre.
+It REQUIRES [Calibre](https://calibre-ebook.com/).
 
 ## Motivation
 - Calibre itself cannot download from a URL.
@@ -44,10 +46,12 @@ ALSO: the binary has been generated on a 64bit linux machine. If your machine ca
 - Keep a list of URLs to get content from on YAML format
   - They are grouped by epub document to enable several docs
 - Define what contents to "extract" (e.g.: get everything under div tagged as "main")
+- Check if the docs have changed (maintain a local copy and compare)
+  -  Update only if the docs changed
 
 ## NOT YET WORKING
 All of the following is yet to be implemented:
 
-- Check if the docs have changed (maintain a local copy and compare)
-  -  Autoupdate if the docs changed
-- Download and adapt src for images
+- Download and adapt src for images.
+- Build a Table of Contents that makes sense.
+- Make the program independent from Calibre.
