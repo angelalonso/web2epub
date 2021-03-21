@@ -4,7 +4,6 @@ use epub_builder::EpubContent;
 use epub_builder::ReferenceType;
 use epub_builder::Result;
 use epub_builder::ZipLibrary;
-use reqwest;
 use select::document::Document;
 use select::predicate::{Attr, Class};
 use std::fs;
@@ -17,7 +16,6 @@ use std::process::Command;
 static CALIBRE_EDIT_COMMAND: &str = "ebook-edit";
 static RESULT_FOLDER: &str = "ebooks";
 static HTML_FOLDER: &str = "tmphtml";
-
 
 fn do_calibre_autocorrect(title: &str) {
     Command::new(CALIBRE_EDIT_COMMAND)
@@ -46,7 +44,7 @@ fn create_from_cfg_file(filename: &str) {
             let mut content = "".to_string();
             let main_title = doc["title"].clone().into_string().unwrap();
             for item in doc["items"].clone() {
-                let item_title = item["title"].clone().into_string().unwrap_or("".to_string());
+                let item_title = item["title"].clone().into_string().unwrap_or_else(|| "".to_string());
                 let url = item["url"].clone().into_string();
                 //let divs_in = item["divs_in"].clone().into_vec().unwrap();
                 let divs_in = match item["divs_in"].clone().into_vec() {
@@ -62,8 +60,9 @@ fn create_from_cfg_file(filename: &str) {
                 let content_clean = remove_content(content_got, divs_out.clone());
                 content.push_str("<?xml version='1.0' encoding='utf-8'?><html xmlns=\"http://www.w3.org/1999/xhtml\"><head/><body>");
                 content.push_str(&format!("<h1>{}</h1>", item_title));
-                content.push_str(&format!("{}", content_clean));
-                content.push_str(&format!("<br><br><br>"));
+                content.push_str(&"{}".to_string());
+                content.push_str(&"<br><br><br>".to_string());
+                content.push_str(&content_clean);
             }
             if is_update_needed(main_title.clone(), content.clone()) {
                 match create_epub(main_title.clone(), content.clone()) {
@@ -93,16 +92,16 @@ fn get_content(url: &str, divs_in: Vec<yaml_rust::Yaml>) -> String {
             let val = v.as_str().unwrap();
             if key == "class" {
                 for node in document.find(Class(val)) {
-                    result.push_str(&format!("{}", node.inner_html()));
+                    result.push_str(&node.inner_html().to_string());
                 }
             } else if key == "id" {
                 for node in document.find(Attr(key, val)) {
-                    result.push_str(&format!("{}", node.inner_html()));
+                    result.push_str(&node.inner_html().to_string());
                 }
             };
         }
     }
-    return result
+    result
 }
 
 fn remove_content(mut content: String, divs_out: Vec<yaml_rust::Yaml>) -> String{
@@ -122,14 +121,12 @@ fn remove_content(mut content: String, divs_out: Vec<yaml_rust::Yaml>) -> String
             };
         }
     }
-    return content
+    content
 }
 
 fn is_update_needed(title: String, content: String) -> bool {
-    match fs::create_dir_all(HTML_FOLDER) {
-        Ok(_) => (),
-        Err(_) => (),
-    };
+    //if let Ok(_) = fs::create_dir_all(HTML_FOLDER) { () };
+    if fs::create_dir_all(HTML_FOLDER).is_ok() { };
     let mut result = true;
     let file_name = format!("{}/{}.html", HTML_FOLDER, title.replace(" ", "_"));
     if fs::metadata(file_name.clone()).is_ok() {
@@ -154,10 +151,7 @@ fn is_update_needed(title: String, content: String) -> bool {
 
 fn create_epub(title: String, content: String) -> Result<()> {
     let file_name = format!("{}/{}.epub", RESULT_FOLDER, title.replace(" ", "_"));
-    match fs::remove_file(file_name.clone()) {
-        Ok(_) => (),
-        Err(_) => (),
-    };
+    if fs::remove_file(file_name.clone()).is_ok()  { };
     let f = File::create(file_name).expect("Unable to create file");
     let mut f = BufWriter::new(f);
 
