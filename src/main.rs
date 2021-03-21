@@ -60,7 +60,6 @@ fn create_from_cfg_file(filename: &str) {
                 let content_clean = remove_content(content_got, divs_out.clone());
                 content.push_str("<?xml version='1.0' encoding='utf-8'?><html xmlns=\"http://www.w3.org/1999/xhtml\"><head/><body>");
                 content.push_str(&format!("<h1>{}</h1>", item_title));
-                content.push_str(&"{}".to_string());
                 content.push_str(&"<br><br><br>".to_string());
                 content.push_str(&content_clean);
             }
