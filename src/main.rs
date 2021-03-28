@@ -12,6 +12,7 @@ use std::io::BufWriter;
 use std::io::prelude::*;
 use yaml_rust::YamlLoader;
 use std::process::Command;
+use web2epub::correctors::get_images;
 
 
 static CALIBRE_EDIT_COMMAND: &str = "ebook-edit";
@@ -156,20 +157,29 @@ fn create_epub(title: String, content: String) -> Result<()> {
     let f = File::create(file_name).expect("Unable to create file");
     let mut f = BufWriter::new(f);
 
-    let filename = "images/default-vpc-diagram.png";
+    //let filenames = [
+    //    "images/default-vpc-diagram.png",
+    //    "images/nondefault-vpc-diagram.png",
+    //];
 
-    let img = fs::read(filename).expect("Unable to read file");
+    //let imgs = filenames.iter().map(|&x| fs::read(x).expect("Unable to read file")).collect::<Vec<Vec<u8>>>();
 
-    EpubBuilder::new(ZipLibrary::new()?)?
-        .metadata("author", "web2epub")?
+    let mut book = EpubBuilder::new(ZipLibrary::new()?)?;
+    book.metadata("author", "web2epub")?
         .metadata("title", title.clone())?
         .add_content(EpubContent::new(format!("{}.xhtml", title), content.as_bytes())
                      .title(title)
-                     .reftype(ReferenceType::Text))?
-        .add_resource("images/default-vpc-diagram.png", img.as_slice(), "image/png")?
-    // Use this if we want to generate a toc inside of the document.
-    //    .inline_toc()
-        .generate(&mut f)?;
+                     .reftype(ReferenceType::Text))?;
+    // UNDER DEVELOPMENT 
+    //   we receive the list of images and then load them here and add_resource them one by one
+    for img in get_images(content) {
+        println!("{}", img);
+    }
+    //for i in 0..filenames.len() {
+    //    book.add_resource(filenames[i], imgs[i].as_slice(), "image/png")?;
+    //}
+
+    book.generate(&mut f)?;
     Ok(())
 }
 

@@ -1,4 +1,4 @@
-mod correctors;
+pub mod correctors;
 
 #[cfg(test)]
 mod tests {
