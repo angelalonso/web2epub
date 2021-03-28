@@ -13,6 +13,7 @@ use std::io::prelude::*;
 use yaml_rust::YamlLoader;
 use std::process::Command;
 
+
 static CALIBRE_EDIT_COMMAND: &str = "ebook-edit";
 static RESULT_FOLDER: &str = "ebooks";
 static HTML_FOLDER: &str = "tmphtml";
@@ -149,10 +150,15 @@ fn is_update_needed(title: String, content: String) -> bool {
 }
 
 fn create_epub(title: String, content: String) -> Result<()> {
+
     let file_name = format!("{}/{}.epub", RESULT_FOLDER, title.replace(" ", "_"));
     if fs::remove_file(file_name.clone()).is_ok()  { };
     let f = File::create(file_name).expect("Unable to create file");
     let mut f = BufWriter::new(f);
+
+    let filename = "images/default-vpc-diagram.png";
+
+    let img = fs::read(filename).expect("Unable to read file");
 
     EpubBuilder::new(ZipLibrary::new()?)?
         .metadata("author", "web2epub")?
@@ -160,6 +166,7 @@ fn create_epub(title: String, content: String) -> Result<()> {
         .add_content(EpubContent::new(format!("{}.xhtml", title), content.as_bytes())
                      .title(title)
                      .reftype(ReferenceType::Text))?
+        .add_resource("images/default-vpc-diagram.png", img.as_slice(), "image/png")?
     // Use this if we want to generate a toc inside of the document.
     //    .inline_toc()
         .generate(&mut f)?;
