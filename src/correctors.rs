@@ -1,4 +1,3 @@
-use std::path::Path;
 use std::fs::File;
 use std::io;
 
@@ -14,7 +13,7 @@ pub fn get_images(content: String, source_url: String) -> (Vec<String>, String) 
     for img in img_list.clone() {
         let src_list = get_from_string(img.clone(), "src=", "\"");
         for src in src_list {
-            let mut url = "".to_string();
+            let url: String;
             //println!("{}", src);
             if src.contains("http") {
                 url = src.replace("src=", "")
