@@ -47,7 +47,7 @@ fn create_from_cfg_file(filename: &str) {
             let main_title = doc["title"].clone().into_string().unwrap();
             for item in doc["items"].clone() {
                 let item_title = item["title"].clone().into_string().unwrap_or_else(|| "".to_string());
-                let url = item["url"].clone().into_string();
+                let url = item["url"].clone().into_string().unwrap();
                 //let divs_in = item["divs_in"].clone().into_vec().unwrap();
                 let divs_in = match item["divs_in"].clone().into_vec() {
                     Some(d_i) => d_i,
@@ -58,12 +58,14 @@ fn create_from_cfg_file(filename: &str) {
                     Some(d_o) => d_o,
                     _ => [].to_vec(),
                 };
-                let content_got = get_content(&url.unwrap(), divs_in.clone());
+                let content_got = get_content(&url.clone(), divs_in.clone());
                 let content_clean = remove_content(content_got, divs_out.clone());
                 content.push_str("<?xml version='1.0' encoding='utf-8'?><html xmlns=\"http://www.w3.org/1999/xhtml\"><head/><body>");
                 content.push_str(&format!("<h1>{}</h1>", item_title));
                 content.push_str(&"<br><br><br>".to_string());
                 content.push_str(&content_clean);
+                // TODO: deal with images here, passing url
+                let images = get_images(content.clone(), url.clone());
             }
             if is_update_needed(main_title.clone(), content.clone()) {
                 match create_epub(main_title.clone(), content.clone()) {
@@ -171,10 +173,11 @@ fn create_epub(title: String, content: String) -> Result<()> {
                      .title(title)
                      .reftype(ReferenceType::Text))?;
     // UNDER DEVELOPMENT 
-    //   we receive the list of images and then load them here and add_resource them one by one
-    for img in get_images(content) {
-        println!("{}", img);
-    }
+    //   we receive the list of images as a parameter and then add_resource them one by one
+    //   TODO: Avoid using get_images here
+    //for img in get_images(content, url) {
+    //    println!("{}", img);
+    //}
     //for i in 0..filenames.len() {
     //    book.add_resource(filenames[i], imgs[i].as_slice(), "image/png")?;
     //}
