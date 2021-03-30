@@ -1,20 +1,24 @@
+use std::path::Path;
+use std::fs::File;
+use std::io;
+
 #[allow(dead_code)]
 pub fn do_correct_images() -> &'static str {
     "test"
 }
 
-pub fn get_images(content: String, source_url: String) -> Vec<&'static str> {
-    let img_list = get_from_string(content, "<img", ">");
-    for img in img_list {
-        let src_list = get_from_string(img, "src=", "\"");
+pub fn get_images(content: String, source_url: String) -> (Vec<String>, String) {
+    let mut result_content: String = "".to_string();
+    let mut result_imgs: Vec<String> = [].to_vec();
+    let img_list = get_from_string(content.clone(), "<img", ">");
+    for img in img_list.clone() {
+        let src_list = get_from_string(img.clone(), "src=", "\"");
         for src in src_list {
             let mut url = "".to_string();
-            println!("{}", src);
+            //println!("{}", src);
             if src.contains("http") {
                 url = src.replace("src=", "")
                     .replace("src =", "")
-                    .replace("https://", "")
-                    .replace("http://", "")
                     .replace("\"", "")
                     .replace(" ", "");
             } else {
@@ -22,19 +26,22 @@ pub fn get_images(content: String, source_url: String) -> Vec<&'static str> {
                     .replace("src =", "")
                     .replace("\"", "")
                     .replace(" ", "");
-                url = source_url.clone() + "/" + &url_part;
+                let source_url_decomp = source_url.split("/").collect::<Vec<_>>();
+                let source_url_file = source_url_decomp[source_url_decomp.len() - 1];
+                url = source_url.clone().replace(source_url_file, "") + "/" + &url_part;
             }
-            println!("### {}", url);
-            //TODO:
-            //  download images
-            //  modify src if needs be
-            //  return list of images
+            let url_decomp = url.split("/").collect::<Vec<_>>();
+            // TODO: check if the filename exists and rename it to *_00x.* if needed
+            let file_name = "images/".to_owned() + url_decomp[url_decomp.len() - 1];
+            result_imgs.append(&mut [file_name.clone()].to_vec());
+            let mut resp = reqwest::get(&url).expect("request failed");
+            let mut out = File::create(file_name.clone()).expect("failed to create file");
+            io::copy(&mut resp, &mut out).expect("failed to copy content");
+            result_content = content.clone().replace(&img.clone(), &file_name.clone());
         }
     }
+    (result_imgs, result_content)
 
-    let result = [
-    ].to_vec();
-    result
 }
 
 /// Gets the exact parts of a String fitting a pattern

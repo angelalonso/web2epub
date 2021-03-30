@@ -44,6 +44,7 @@ fn create_from_cfg_file(filename: &str) {
     for array in docs {
         for doc in array {
             let mut content = "".to_string();
+            let mut images: Vec<String> = [].to_vec();
             let main_title = doc["title"].clone().into_string().unwrap();
             for item in doc["items"].clone() {
                 let item_title = item["title"].clone().into_string().unwrap_or_else(|| "".to_string());
@@ -65,10 +66,12 @@ fn create_from_cfg_file(filename: &str) {
                 content.push_str(&"<br><br><br>".to_string());
                 content.push_str(&content_clean);
                 // TODO: deal with images here, passing url
-                let images = get_images(content.clone(), url.clone());
+                let (aux_images, aux_content) = get_images(content.clone(), url.clone());
+                images = aux_images;
+                content = aux_content;
             }
             if is_update_needed(main_title.clone(), content.clone()) {
-                match create_epub(main_title.clone(), content.clone()) {
+                match create_epub(main_title.clone(), content.clone(), images.clone()) {
                     Ok(_) => println!("Book {}.epub created successfully!\n\nUse ebook-edit {}.epub > Tools > Check ebook if your ebook reader cant handle it", 
                                       main_title.clone().replace(" ", "_"),
                                       main_title.clone().replace(" ", "_")),
@@ -152,7 +155,7 @@ fn is_update_needed(title: String, content: String) -> bool {
     result
 }
 
-fn create_epub(title: String, content: String) -> Result<()> {
+fn create_epub(title: String, content: String, images: Vec<String>) -> Result<()> {
 
     let file_name = format!("{}/{}.epub", RESULT_FOLDER, title.replace(" ", "_"));
     if fs::remove_file(file_name.clone()).is_ok()  { };
@@ -164,7 +167,7 @@ fn create_epub(title: String, content: String) -> Result<()> {
     //    "images/nondefault-vpc-diagram.png",
     //];
 
-    //let imgs = filenames.iter().map(|&x| fs::read(x).expect("Unable to read file")).collect::<Vec<Vec<u8>>>();
+    let imgs = images.iter().map(|x| fs::read(x).expect("Unable to read file")).collect::<Vec<Vec<u8>>>();
 
     let mut book = EpubBuilder::new(ZipLibrary::new()?)?;
     book.metadata("author", "web2epub")?
@@ -178,9 +181,9 @@ fn create_epub(title: String, content: String) -> Result<()> {
     //for img in get_images(content, url) {
     //    println!("{}", img);
     //}
-    //for i in 0..filenames.len() {
-    //    book.add_resource(filenames[i], imgs[i].as_slice(), "image/png")?;
-    //}
+    for i in 0..images.len() {
+        book.add_resource(images[i].clone(), imgs[i].as_slice(), "image/png")?;
+    }
 
     book.generate(&mut f)?;
     Ok(())
