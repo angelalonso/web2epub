@@ -1,5 +1,6 @@
 use std::fs::File;
 use std::io;
+use reqwest;
 
 #[allow(dead_code)]
 pub fn do_correct_images() -> &'static str {
@@ -33,9 +34,11 @@ pub fn get_images(content: String, source_url: String) -> (Vec<String>, String) 
             // TODO: check if the filename exists and rename it to *_00x.* if needed
             let file_name = "images/".to_owned() + url_decomp[url_decomp.len() - 1];
             result_imgs.append(&mut [file_name.clone()].to_vec());
-            let mut resp = reqwest::get(&url).expect("request failed");
+            println!(" - getting image {}", url.clone());
+            let mut resp = reqwest::blocking::get(&url).expect("request failed");
             let mut out = File::create(file_name.clone()).expect("failed to create file");
             io::copy(&mut resp, &mut out).expect("failed to copy content");
+
             result_content = content.clone().replace(&img.clone(), &file_name.clone());
         }
     }

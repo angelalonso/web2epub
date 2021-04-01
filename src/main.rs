@@ -27,6 +27,9 @@ fn do_calibre_autocorrect(title: &str) {
 }
 
 fn create_from_cfg_file(filename: &str) {
+    //TODO:
+    //  add proper index
+    //  check why some images wont load
     let mut file = File::open(filename).expect("Unable to open file");
     let mut filecontents = String::new();
 
@@ -43,6 +46,7 @@ fn create_from_cfg_file(filename: &str) {
 
     for array in docs {
         for doc in array {
+            println!("preparing {}", doc["title"].clone().into_string().unwrap());
             let mut content = "".to_string();
             let mut images: Vec<String> = [].to_vec();
             let main_title = doc["title"].clone().into_string().unwrap();
@@ -54,7 +58,6 @@ fn create_from_cfg_file(filename: &str) {
                     Some(d_i) => d_i,
                     _ => [].to_vec(),
                 };
-                //let divs_out = item["divs_out"].clone().into_vec().unwrap();
                 let divs_out = match item["divs_out"].clone().into_vec() {
                     Some(d_o) => d_o,
                     _ => [].to_vec(),
@@ -65,7 +68,6 @@ fn create_from_cfg_file(filename: &str) {
                 content.push_str(&format!("<h1>{}</h1>", item_title));
                 content.push_str(&"<br><br><br>".to_string());
                 content.push_str(&content_clean);
-                // TODO: deal with images here, passing url
                 let (aux_images, aux_content) = get_images(content.clone(), url.clone());
                 images = aux_images;
                 content = aux_content;
@@ -77,15 +79,16 @@ fn create_from_cfg_file(filename: &str) {
                                       main_title.clone().replace(" ", "_")),
                     Err(_) => println!("ERROR creating Book {}.epub!", main_title.clone().replace(" ", "_")),
                 };
-                do_calibre_autocorrect(&main_title.clone());
+                //do_calibre_autocorrect(&main_title.clone());
             };
         }
     }
 }
 
 fn get_content(url: &str, divs_in: Vec<yaml_rust::Yaml>) -> String {
+    println!(" - downloading {}", url.clone());
     let mut result = "".to_string();
-    let resp = reqwest::get(url).unwrap();
+    let resp = reqwest::blocking::get(url).unwrap();
     if !resp.status().is_success() {
         println!("ERROR downloading \"{}\"", url);
         panic!();
@@ -162,25 +165,15 @@ fn create_epub(title: String, content: String, images: Vec<String>) -> Result<()
     let f = File::create(file_name).expect("Unable to create file");
     let mut f = BufWriter::new(f);
 
-    //let filenames = [
-    //    "images/default-vpc-diagram.png",
-    //    "images/nondefault-vpc-diagram.png",
-    //];
-
     let imgs = images.iter().map(|x| fs::read(x).expect("Unable to read file")).collect::<Vec<Vec<u8>>>();
 
     let mut book = EpubBuilder::new(ZipLibrary::new()?)?;
     book.metadata("author", "web2epub")?
         .metadata("title", title.clone())?
+        .inline_toc()
         .add_content(EpubContent::new(format!("{}.xhtml", title), content.as_bytes())
                      .title(title)
                      .reftype(ReferenceType::Text))?;
-    // UNDER DEVELOPMENT 
-    //   we receive the list of images as a parameter and then add_resource them one by one
-    //   TODO: Avoid using get_images here
-    //for img in get_images(content, url) {
-    //    println!("{}", img);
-    //}
     for i in 0..images.len() {
         book.add_resource(images[i].clone(), imgs[i].as_slice(), "image/png")?;
     }
