@@ -1,10 +1,41 @@
 use std::fs::File;
+use std::path::Path;
 use std::io;
+use std::process::Command;
 use reqwest;
 
-#[allow(dead_code)]
-pub fn do_correct_images() -> &'static str {
-    "test"
+static CALIBRE_EDIT_COMMAND: &str = "ebook-edit";
+static RESULT_FOLDER: &str = "ebooks";
+
+pub fn do_calibre_autocorrect(title: &str) {
+    Command::new(CALIBRE_EDIT_COMMAND)
+        .arg(format!("{}/{}.epub", RESULT_FOLDER, title.replace(" ", "_")))
+        .spawn()
+        .expect("ebook-edit command failed to start");
+}
+
+pub fn get_image_filename(url: String) -> String {
+    let path = "images/".to_owned();
+    let url_decomp = url.split("/").collect::<Vec<_>>();
+    let stripped_file_name_raw = url_decomp[url_decomp.len() - 1].split(".").collect::<Vec<_>>();
+    let stripped_file_name = stripped_file_name_raw.split_last().unwrap_or((&"", &[""]));
+    let mut file_name = path.clone() + url_decomp[url_decomp.len() - 1];
+    if Path::new(&file_name).exists() {
+        let mut name_correct = false;
+        let mut file_ix = 0;
+        while !name_correct {
+            file_ix += 1;
+            let test_file_name = path.clone() 
+                + &stripped_file_name.1.join(".") 
+                + &format!("{:0>3}", file_ix) 
+                + "." + stripped_file_name.0;
+            if !Path::new(&test_file_name).exists() {
+                file_name = test_file_name;
+                name_correct = true;
+            }
+        }
+    };
+    file_name
 }
 
 pub fn get_images(content: String, source_url: String) -> (Vec<String>, String) {
@@ -14,10 +45,9 @@ pub fn get_images(content: String, source_url: String) -> (Vec<String>, String) 
     for img in img_list.clone() {
         let src_list = get_from_string(img.clone(), "src=", "\"");
         for src in src_list {
-            let url: String;
-            //println!("{}", src);
+            let img_url: String;
             if src.contains("http") {
-                url = src.replace("src=", "")
+                img_url = src.replace("src=", "")
                     .replace("src =", "")
                     .replace("\"", "")
                     .replace(" ", "");
@@ -28,17 +58,14 @@ pub fn get_images(content: String, source_url: String) -> (Vec<String>, String) 
                     .replace(" ", "");
                 let source_url_decomp = source_url.split("/").collect::<Vec<_>>();
                 let source_url_file = source_url_decomp[source_url_decomp.len() - 1];
-                url = source_url.clone().replace(source_url_file, "") + "/" + &url_part;
+                img_url = source_url.clone().replace(source_url_file, "") + "/" + &url_part;
             }
-            let url_decomp = url.split("/").collect::<Vec<_>>();
-            // TODO: check if the filename exists and rename it to *_00x.* if needed
-            let file_name = "images/".to_owned() + url_decomp[url_decomp.len() - 1];
+            println!("--------------- {}", img_url);
+            let file_name = get_image_filename(img_url.clone());
             result_imgs.append(&mut [file_name.clone()].to_vec());
-            println!(" - getting image {}", url.clone());
-            let mut resp = reqwest::blocking::get(&url).expect("request failed");
+            let mut resp = reqwest::blocking::get(&img_url).expect("request failed");
             let mut out = File::create(file_name.clone()).expect("failed to create file");
             io::copy(&mut resp, &mut out).expect("failed to copy content");
-
             result_content = content.clone().replace(&img.clone(), &file_name.clone());
         }
     }

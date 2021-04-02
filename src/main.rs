@@ -11,20 +11,11 @@ use std::fs::File;
 use std::io::BufWriter;
 use std::io::prelude::*;
 use yaml_rust::YamlLoader;
-use std::process::Command;
-use web2epub::correctors::get_images;
+use web2epub::correctors::{get_images, do_calibre_autocorrect};
 
 
-static CALIBRE_EDIT_COMMAND: &str = "ebook-edit";
 static RESULT_FOLDER: &str = "ebooks";
 static HTML_FOLDER: &str = "tmphtml";
-
-fn do_calibre_autocorrect(title: &str) {
-    Command::new(CALIBRE_EDIT_COMMAND)
-        .arg(format!("{}/{}.epub", RESULT_FOLDER, title.replace(" ", "_")))
-        .spawn()
-        .expect("ebook-edit command failed to start");
-}
 
 fn create_from_cfg_file(filename: &str) {
     //TODO:
@@ -68,10 +59,11 @@ fn create_from_cfg_file(filename: &str) {
                 content.push_str(&format!("<h1>{}</h1>", item_title));
                 content.push_str(&"<br><br><br>".to_string());
                 content.push_str(&content_clean);
-                let (aux_images, aux_content) = get_images(content.clone(), url.clone());
-                images = aux_images;
+                let (mut aux_images, aux_content) = get_images(content.clone(), url.clone());
+                images.append(&mut aux_images);
                 content = aux_content;
             }
+            //println!("{:#x?}", images);
             if is_update_needed(main_title.clone(), content.clone()) {
                 match create_epub(main_title.clone(), content.clone(), images.clone()) {
                     Ok(_) => println!("Book {}.epub created successfully!\n\nUse ebook-edit {}.epub > Tools > Check ebook if your ebook reader cant handle it", 
@@ -79,7 +71,7 @@ fn create_from_cfg_file(filename: &str) {
                                       main_title.clone().replace(" ", "_")),
                     Err(_) => println!("ERROR creating Book {}.epub!", main_title.clone().replace(" ", "_")),
                 };
-                //do_calibre_autocorrect(&main_title.clone());
+                do_calibre_autocorrect(&main_title.clone());
             };
         }
     }
