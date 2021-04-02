@@ -20,7 +20,7 @@ static HTML_FOLDER: &str = "tmphtml";
 fn create_from_cfg_file(filename: &str) {
     //TODO:
     //  add proper index
-    //  check why some images wont load
+    //  foind out why unneeded images get added to each page
     let mut file = File::open(filename).expect("Unable to open file");
     let mut filecontents = String::new();
 

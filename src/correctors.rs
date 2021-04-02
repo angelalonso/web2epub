@@ -58,9 +58,8 @@ pub fn get_images(content: String, source_url: String) -> (Vec<String>, String) 
                     .replace(" ", "");
                 let source_url_decomp = source_url.split("/").collect::<Vec<_>>();
                 let source_url_file = source_url_decomp[source_url_decomp.len() - 1];
-                img_url = source_url.clone().replace(source_url_file, "") + "/" + &url_part;
+                img_url = source_url.clone().replace(source_url_file, "") + &url_part;
             }
-            println!("--------------- {}", img_url);
             let file_name = get_image_filename(img_url.clone());
             result_imgs.append(&mut [file_name.clone()].to_vec());
             let mut resp = reqwest::blocking::get(&img_url).expect("request failed");

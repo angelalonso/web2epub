@@ -16,6 +16,7 @@ Cargo.lock
 # Epubs and temporary HTMLs
 **/*.epub
 tmphtml
+images
 
 # Configs
 config.yaml
