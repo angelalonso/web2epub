@@ -48,10 +48,9 @@ ALSO: the binary has been generated on a 64bit linux machine. If your machine ca
 - Define what contents to "extract" (e.g.: get everything under div tagged as "main")
 - Check if the docs have changed (maintain a local copy and compare)
   -  Update only if the docs changed
+- Find images defined on the original HTML and downloads them, then references to the local copy
 
 ## NOT YET WORKING
 All of the following is yet to be implemented:
 
-- Download and adapt src for images.
-- Build a Table of Contents that makes sense.
 - Make the program independent from Calibre.
